@@ -33,7 +33,6 @@ def get_top_laptops_by_tmdb_rating(laptops_csv, ratings_csv,
     # Объединяем с данными о ноутбуках
     top_laptops = qualified.merge(laptops_df[[id_col, title_col]].drop_duplicates(), on=id_col)
 
-    # Сортируем по взвешенному рейтингу и берём топ-10
     top_10 = top_laptops.sort_values('weighted_rating', ascending=False).head(5)
 
     result = top_10[[title_col, 'weighted_rating', 'v', 'R']]
@@ -75,7 +74,7 @@ def recommend_laptops_for_user(user_id, laptops_csv, ratings_csv, top_n=5):
     laptops = pd.read_csv(laptops_csv)
     ratings = pd.read_csv(ratings_csv)
 
-    # Создаем пользователь-ноутбук матрицу оценок
+    # Матрица предпочтений
     user_item = ratings.pivot(index='id_user', columns='id_laptop', values='user_rating').fillna(0)
 
     if user_id not in user_item.index:

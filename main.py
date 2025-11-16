@@ -154,10 +154,36 @@ class App:
 
         if top_10_df.empty:
             tk.Label(frame, text="Нет доступных рекомендаций.", padx=10, pady=10).pack()
-        else:
-            for _, row in top_10_df.iterrows():
-                rec_info = f"{row['title']} | Взвешенный рейтинг: {row['weighted_rating']:.2f}"
-                tk.Label(frame, text=rec_info, padx=10).pack(anchor='w')
+
+                # rec_info = f"{row['title']} | Взвешенный рейтинг: {row['weighted_rating']:.2f}"
+                # tk.Label(frame, text=rec_info, padx=10).pack(anchor='w')
+        rec_frame = tk.Frame(frame)
+        rec_frame.pack(fill='both', expand=True, padx=10, pady=5)
+
+                # Таблица с колонками: Название, Цена, Взвешенный рейтинг
+        columns = ('title', 'price', 'weighted_rating')
+        tree_rec = ttk.Treeview(rec_frame, columns=columns, show='headings', height=10)
+        tree_rec.pack(fill='both', expand=True)
+
+        tree_rec.heading('title', text='Название')
+        tree_rec.heading('price', text='Цена')
+        tree_rec.heading('weighted_rating', text='Взвешенный рейтинг')
+
+        tree_rec.column('title', anchor='w', width=350)
+        tree_rec.column('price', anchor='center', width=120)
+        tree_rec.column('weighted_rating', anchor='center', width=150)
+
+        for _, row in top_10_df.iterrows():
+            title = row['title']
+            short_title = (title[:25] + '...') if len(title) > 25 else title
+
+            price_row = self.laptops_df[self.laptops_df['title'] == row['title']]
+            price = price_row['price'].values[0] if not price_row.empty else "0"
+
+            weighted_rating = row.get('weighted_rating', 0.0)
+            wr_str = f"{weighted_rating:.2f}"
+
+            tree_rec.insert('', 'end', values=(short_title, price, wr_str))
 
     def update_treeview(self):
         query = self.search_var.get().lower() if hasattr(self, 'search_var') else ""
